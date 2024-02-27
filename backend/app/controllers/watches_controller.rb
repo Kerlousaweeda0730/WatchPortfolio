@@ -4,7 +4,7 @@ class WatchesController < ApplicationController
 
   # GET /watches
   def index
-    @watches = Watch.find_by user: @user.id
+    @watches = Watch.where user: @user.id
 
     render json: @watches
   end
@@ -17,7 +17,7 @@ class WatchesController < ApplicationController
   # POST /watches
   def create
     @watch = Watch.new(watch_params)
-    @watch.user = @user.id
+    @watch.user = @user
 
     if @watch.save
       render json: @watch, status: :created, location: @watch
