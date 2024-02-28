@@ -16,14 +16,20 @@ class WatchesController < ApplicationController
 
   # POST /watches
   def create
-    @watch = Watch.new(watch_params)
-    @watch.user = @user
-
-    if @watch.save
-      render json: @watch, status: :created, location: @watch
+    chrono24_url = params[:chrono24_url]
+  
+    watch_details = Chrono24Service.fetch_watch_details(chrono24_url)
+    
+    if watch_details.present?
+      @watch = @user.watches.build(watch_params.merge(watch_details))
+      
+      if @watch.save
+        render json: @watch, status: :created
+      else
+        render json: @watch.errors, status: :unprocessable_entity
+      end
     else
-      render json: @watch.errors, status: :unprocessable_entity
-    end
+      render json: { error: "Failed to fetch watch details." }, status: :bad_request
   end
 
   # PATCH/PUT /watches/1
